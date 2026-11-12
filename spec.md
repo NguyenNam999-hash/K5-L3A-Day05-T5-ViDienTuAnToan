@@ -88,28 +88,158 @@ Không có dữ liệu thật. Tên, số, giao dịch và bệnh viện đều 
 
 ## 
 ## §3. Khi AI sai  (chặng 3)
-Với mỗi kịch bản đắt nhất:
-- AI nói gì (nguyên văn) · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu.
-- Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người — chọn cách nào, đã loại cách nào, vì sao.
-- Loại lỗi (hệ thống / người dùng / ngữ cảnh) và vì sao cách nói, cách sửa đi theo loại đó.
-- 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
-- Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
+
+### 3.1 Kịch bản #8 - bị doạ chuyển tiền
+
+- AI nói (nguyên văn):
+
+> “Mình dừng ở đây. Không có cơ quan điều tra nào yêu cầu chuyển tiền để chứng minh trong sạch. Mình đã giữ giao dịch 8.000.000₫ thêm 30 phút và chuyển tư vấn viên ngay. Bạn không cần xác thực khuôn mặt hay đọc mã nào.”
+
+- Người dùng thấy gì: Thẻ giao dịch `GD-8H2K · 8.000.000₫ · Đang tạm giữ`; chip “Mình chưa đủ căn cứ để nói giao dịch này an toàn” (không phải phần trăm); thẻ “Dựa vào” ba dòng: lời người dùng kể, giao dịch đang giữ, người nhận chưa có trong danh bạ; ba nút "Gọi tư vấn viên ngay", "Xem vì sao bị giữ", "Đây không phải giao dịch của tôi". Không có nút nhả giao dịch. Sau khi chuyển người: thẻ “Đã gửi tóm tắt · 00:47” với "Huỷ chuyển", và console phía tư vấn viên hiện bằng chứng, nút "Giữ giao dịch" bật, "Duyệt nhả" khoá.
+
+- Người dùng làm gì tiếp: Gọi tư vấn viên; đọc vì sao bị giữ; sửa “đây không phải giao dịch của tôi”; hoặc bỏ qua. Nếu bỏ qua, giao dịch vẫn giữ và tư vấn viên gọi lại số đăng ký trong 2 phút. Không có đường nào để khách tự nhả.
+
+- Ai được báo, sau bao lâu: Ca vào hàng đợi ưu tiên của tư vấn viên rủi ro ngay khi bấm gọi; mục tiêu nhận trong 60 giây. Nếu không ai nhận trong 60 giây, đẩy lên trưởng ca và gọi lại chủ ví; giao dịch vẫn giữ. Người nhắn không phải chủ ví không nhận được chi tiết giao dịch.
+
+- Quyết định: dừng và chuyển người. Đã loại:
+    - Hỏi lại (“bạn chuyển cho ai, để làm gì?”): người đang bị doạ sẽ trả lời theo kịch bản của kẻ gọi; mỗi câu hỏi mua thêm thời gian cho kẻ gian.
+    - Trả lời kèm giới hạn (“có thể là lừa đảo, bạn cân nhắc”): vẫn để nút nhả và vẫn đặt quyết định vào tay người đang bị thao túng.
+    - Tự nhả sau khi xác thực khuôn mặt: khuôn mặt đúng không chứng minh sự đồng ý tự do; kẻ gian có thể ngồi cạnh và hướng dẫn.
+
+- Loại lỗi: lỗi ngữ cảnh (PAIR context error). Hệ thống chạy đúng thiết kế (giữ giao dịch rủi ro) nhưng sai với tình huống người dùng đang bị doạ. Vì là lỗi ngữ cảnh, cách sửa không phải câu xin lỗi hay câu giải thích dài, mà là bỏ quyền nhả khỏi màn hình khách và đưa người thật vào. Câu chữ không được đổ lỗi (“bạn nhẹ dạ”) và không được hứa “chắc chắn an toàn”.
+
+- HAX/PAIR - mỗi nguyên tắc trỏ vào một chỗ:
+
+| Nguyên tắc | Chỗ trên prototype | Cách thể hiện |
+|---|---|---|
+| **G2** - làm rõ hệ thống làm được gì | Banner dưới tên trợ lý, số **1** trên ảnh 1 | “Trợ lý AI · không tự nhả tiền, không tự mở khoá ví. Quyết định nhả thuộc tư vấn viên.” |
+| **G9 + PAIR Feedback & Control** - sửa và dừng dễ | Nút **Đây không phải giao dịch của tôi** (trong thẻ AI) và **Huỷ chuyển** (số **5**) trên ảnh 1 | Người dùng sửa được thông tin sai và huỷ chuyển người trước khi tư vấn viên nhận; không phải bắt đầu lại |
+| **G11 + PAIR Explainability** - giải thích vì sao, để người dùng tự kiểm | Thẻ **Dựa vào**, số **3** trên ảnh 1 | Ba dòng chỉ dùng điều người dùng thấy được; không có điểm số gian lận, không có ngưỡng nội bộ |
+
+- Lỗi sửa câu chữ không cứu được: Một câu cảnh báo hoàn hảo vẫn không cản được người đang tin kẻ gọi. Chỉ thiết kế mới cứu được: bỏ nút nhả, giữ tiền, và đưa người thật vào trước khi tiền đi. Prototype làm đúng ba việc đó.
+
+### 3.2 Kịch bản #9 - người thật đang gấp ở quầy viện phí
+
+- AI nói (nguyên văn):
+
+> “Mình thấy giao dịch 2.000.000₫ đang chờ xác minh. Bạn bấm ‘Xác minh khuôn mặt’ ngay; nếu quá 60 giây chưa xong, mình chuyển tư vấn viên ưu tiên. Mình không tự nhả giao dịch - người duyệt sẽ thấy đây là ca quầy viện phí và duyệt trong khoảng 1 phút.”
+
+- Người dùng thấy gì: Thẻ `GD-2B9N · 2.000.000₫ · Đã xác minh · chờ duyệt`; chip “Mình không đủ căn cứ để tự nhả, nên mình chuyển người thay vì đoán”; thẻ “Dựa vào” (lời người dùng, giao dịch đang chờ, người nhận là bệnh viện); nút "Xác minh ngay", "Gọi tư vấn viên ưu tiên", "Xem vì sao bị giữ". Sau khi xác minh: thẻ “Tư vấn viên đã thấy · 0:38” và console có "Duyệt nhả" bật; khách không có nút nhả.
+
+- Người dùng làm gì tiếp: Bấm xác minh ngay; nếu muốn, gọi tư vấn viên ưu tiên; hoặc huỷ chuyển. Nếu huỷ, giao dịch vẫn giữ và khách có thể gọi lại bất cứ lúc nào; không tự nhả.
+
+- Ai được báo, sau bao lâu: Ca vào hàng đợi ưu tiên ngay sau khi xác minh; mục tiêu 60 giây, prototype mô phỏng 0:38. Nếu quá 60 giây, đẩy lên trưởng ca và gọi lại; giao dịch vẫn giữ. Khách thấy thời gian chờ, không phải màn hình trắng.
+
+- Quyết định: trả lời kèm giới hạn + chuyển người ưu tiên. Đã loại:
+    - Hỏi lại (“ai nhận, chuyển để làm gì?”): người đang đứng ở quầy viện phí đã nói đủ; hỏi thêm là biến sự cố của hệ thống thành việc của khách.
+    - Tự nhả theo ngưỡng (“dưới 2 triệu thì cho đi”): phải nêu ngưỡng, tạo kẽ hở chia nhỏ giao dịch, và một lần nhả sai là không đảo được.
+    - Hàng đợi chung: đúng quy trình nhưng sai với người đang gấp; 60 giây phải là ưu tiên nhìn thấy được, không phải lời hứa.
+
+- Loại lỗi: lỗi hệ thống (false positive). Mô hình rủi ro giữ một giao dịch hợp lệ; hệ thống chạy đúng thiết kế nhưng sai với ngữ cảnh bệnh viện. Vì là lỗi hệ thống, cách nói phải nhận phần chậm của hệ thống, không đổ lỗi cho khách; cách sửa là làn ưu tiên + người duyệt, không chỉ là câu xin lỗi.
+
+- HAX/PAIR - mỗi nguyên tắc trỏ vào một chỗ:
+
+| Nguyên tắc | Chỗ trên prototype | Cách thể hiện |
+|---|---|---|
+| **G2** - làm rõ hệ thống làm được gì | Banner số **1** trên ảnh 2 | Nói ngay AI không tự nhả tiền; người duyệt là tư vấn viên |
+| **G9 + PAIR Feedback & Control** - sửa và dừng dễ | Nút **Gọi tư vấn viên ưu tiên** trên ảnh 2; nút **Huỷ yêu cầu** ở bước xác minh ngay trước đó; nút **Huỷ chuyển** (số **5**) | Người dùng huỷ được yêu cầu/chuyển người; không mất giao dịch khi huỷ |
+| **G11 + PAIR Explainability** - giải thích vì sao | Thẻ **Dựa vào**, số **3** trên ảnh 2 | Nói rõ vì sao chờ: giao dịch đang chờ xác minh, người nhận là bệnh viện, người duyệt thấy gì |
+
+- Lỗi sửa câu chữ không cứu được: Một lời xin lỗi hay hơn không làm tiền đến quầy nhanh hơn. Chỉ làn ưu tiên có người thật duyệt trong 60 giây mới cứu được trải nghiệm; câu chữ chỉ giữ được niềm tin trong lúc chờ.
 
 ## §4. Mức tự chủ  (chặng 4)
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
 
-## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
+### Bảng mức
+
+| Tool | Mức | Ai duyệt / điều kiện | Quá hạn thì sao |
+|---|---|---|---|
+| `giu_giao_dich` | **tự làm** | AI giữ thêm 30 phút; không nhả | Hết 30 phút → về “chờ tư vấn viên”, **không tự chuyển tiền** |
+| `yeu_cau_xac_minh` | **tự làm** | AI gửi màn hình xác thực; khách huỷ trong 10 giây; **không gửi khi người dùng vừa kể kịch bản bị doạ** | Hết 10 giây → không huỷ được; không ảnh hưởng số tiền |
+| `chuyen_tu_van_vien` | **tự làm** | AI chuyển ngay; khách huỷ được trước khi tư vấn viên nhận; ca bị doạ/gấp vào hàng ưu tiên | Tư vấn viên nhận → không huỷ được nữa; khách thấy SLA |
+| `nha_giao_dich` | **cần người duyệt** | **Tư vấn viên rủi ro** (người thật) duyệt; thấy mã GD, số tiền, lời khách, trạng thái xác minh, người nhận, dấu hiệu; 60 giây ưu tiên, 2 phút thường | Quá hạn → **giữ + gọi lại**, không tự nhả; đẩy trưởng ca |
+| `khoa_vi` | **cấm** | AI không được khoá cả ví; chỉ tổng đài/tư vấn viên ngoài chat | — |
+| `khoa_tam_15p` (tool tách) | **tự làm** | AI khoá tạm 15 phút, tự mở; không có nút mở sớm trong chat | Hết 15 phút → tự mở; ca vẫn chuyển người nếu còn dấu hiệu |
+
+### Lý do theo cost-of-error
+
+- **`giu_giao_dich` — tự làm.** Sai khi giữ: khách chờ thêm, nhưng tiền vẫn trong ví và người thật can thiệp được. Sai khi không giữ: tiền đi trong vài giây, không lấy lại. Chờ người duyệt cho một việc bảo vệ thì quá chậm. **Đã loại:** không giữ (tiền đi), bắt tư vấn viên duyệt việc giữ (chậm vô ích), tự nhả khi hết giờ (không đảo được).
+- **`yeu_cau_xac_minh` — tự làm.** Sai khi gửi: khách thấy phiền, nhưng không mất tiền; huỷ được trong 10 giây. Sai khi không gửi: người thật đang gấp bị kẹt. **Đã loại:** bắt người duyệt (làm chậm ca gấp), cấm gửi (bỏ rơi người bình thường), coi khuôn mặt đúng là bằng chứng an toàn (bị ép).
+- **`chuyen_tu_van_vien` — tự làm.** Sai khi chuyển: tốn công tư vấn viên; chuyển nhầm thì huỷ được. Sai khi không chuyển: mất tiền hoặc mất niềm tin. **Đã loại:** chỉ chuyển sau 3 câu trả lời sai (quá chậm), bắt khách xác nhận trước khi chuyển (kẻ gian chặn), chuyển tất cả mọi ca (quá tải).
+- **`nha_giao_dich` — cần người duyệt.** Sai khi nhả: tiền đi, không đảo được, người chịu là chủ ví. Sai khi chờ: người gấp chờ thêm 60 giây; cái giá này có hạn và nhìn thấy được. **Đã loại:** tự nhả (không đảo được), để khách tự duyệt (kẻ gian điều khiển), AI tự duyệt theo “độ chắc” (độ chắc không xác thực được sự đồng ý).
+- **`khoa_vi` — cấm.** Sai khi khoá cả ví: chủ ví mất quyền dùng tiền nhiều giờ, mở lại phải qua tổng đài; cái giá này quá lớn cho một quyết định trong chat. AI vẫn bảo vệ được bằng `khoa_tam_15p`. **Đã loại:** tự làm (quá đắt), “cần người duyệt” trong chat (vẫn là AI khởi tạo quyền khoá cả ví; việc này thuộc kênh chính thức), bỏ hẳn (người dùng vẫn cần đường khoá).
+- **`khoa_tam_15p` — tự làm (tool tách từ `khoa_vi`).** Sai khi khoá tạm: khách bị chặn 15 phút, nhưng tự mở và không mất tiền. Sai khi không khoá: kẻ chiếm tài khoản có thêm thời gian. **Đã loại:** khoá cả ví (quá đắt), không khoá (mất tiền), khoá tạm không có hạn (thành khoá cả ví).
+
+### Tool khó xếp nhất: `nha_giao_dich`
+
+Ba người từng chọn khác nhau:
+
+- **Nam — cấm.** “AI không được chạm tiền.” Cái giá: ca #9 (người thật đang gấp) chờ vô ích; sản phẩm mất lý do tồn tại.
+- **Bình — tự làm khi đã xác thực khuôn mặt và số tiền nhỏ.** Cái giá: #8 cho thấy khuôn mặt đúng vẫn có thể bị ép; một lần nhả sai là không đảo được. Đã loại.
+- **Thái — cần người duyệt + SLA 60 giây.** Cái giá: người gấp chờ 60 giây. Nhóm chốt phương án này vì cái giá sai **có hạn** (60 giây, nhìn thấy, có người chịu trách nhiệm) còn cái giá nhả sai là **không hạn** (mất 8 triệu, mất niềm tin).
+
+Nhóm chốt bằng một câu hỏi: “Nếu chỉ được chọn một lần sai, nhóm chọn chờ 60 giây hay mất 8 triệu?” Chọn chờ 60 giây, và dùng làn ưu tiên để giảm cái giá đó.
+
+### Thử mức đã đặt trên 3 kịch bản
+
+| Kịch bản | Cái sai có bị chặn? | Còn việc nào làm khi lẽ ra phải hỏi? | Người dùng bình thường có phải chờ vô ích? |
+|---|---|---|---|
+| #8 bị doạ 8 triệu | Có: `giu_giao_dich` giữ; `nha_giao_dich` khoá; không có nút nhả | `yeu_cau_xac_minh` bị chặn bởi luật “không gửi khi có kịch bản bị doạ”; `khoa_tam_15p` không tự bật | Không: ca bị doạ vào ưu tiên, có người gọi lại trong 2 phút |
+| #9 quầy viện phí | Có: không tự nhả; người duyệt thấy bệnh viện và xác minh | Không: AI không hỏi thêm; chỉ đưa xác minh và ưu tiên | Có 38 giây chờ duyệt — chấp nhận vì tiền không đảo được; giảm bằng ưu tiên |
+| #3 “khoá thẻ khẩn cấp” | Có: `khoa_vi` không có nút; `khoa_tam_15p` chỉ dùng khi rõ | Không: AI hỏi một câu để phân biệt ví/thẻ | Không: không phải chuyển người nếu chỉ muốn khoá tạm |
+
+**Một mức tự chủ đã đổi lời hứa nào.** `nha_giao_dich` đổi từ “AI xử lý ngay cho bạn” thành “AI giữ tiền an toàn và chuyển người duyệt trong khoảng 1 phút”. `khoa_vi` đổi từ “AI khoá ví ngay” thành “AI chỉ khoá tạm 15 phút; khoá cả ví qua tổng đài”. Đây là lời hứa trung thực hơn: AI không làm được việc không có thẩm quyền.
+
+### Luật thêm và tool tách
+
+- **Tách `khoa_tam_15p` khỏi `khoa_vi`.** Khoá cả ví sai thì mất nhiều giờ; khoá tạm 15 phút đủ để chặn kẻ chiếm tài khoản và tự mở. Nhờ tách, AI vẫn bảo vệ được ca chiếm tài khoản mà không cần quyền khoá cả ví.
+- **Luật “không xác thực khi đang bị doạ”.** Nếu người dùng vừa kể một kịch bản bị doạ (công an, toà, chuyển tiền chứng minh), AI không gửi `yeu_cau_xac_minh`; xác thực khuôn mặt không phải bằng chứng an toàn. Luật này chặn đúng cái sai ở #8.
+- **Luật “không nhả cho người không phải chủ ví”.** Người thân, người giúp việc, người nhắn thay đều không được nhận chi tiết hay quyền nhả; chỉ chủ ví xác nhận qua số đăng ký, hoặc tư vấn viên xác minh qua kênh chính thức. Luật này chặn #4.
+
+---
+
+## §5. Prototype
+
+**File:** [`prototype/index.html`](prototype/index.html) — một file HTML tự chứa (CSS/JS inline), không cần build. Mở trực tiếp bằng trình duyệt, hoặc chạy `python3 prototype/server.py` rồi mở `http://127.0.0.1:8765/` để bật lời gọi AI thật.
+
+**Công cụ:** HTML/CSS/JS viết tay. **Phần mock:** toàn bộ giao dịch, tên, số, lời nhắn, thời gian chờ và quyết định của tư vấn viên. **Phần thật:** một lời gọi AI phân loại ý định ở quyết định chính (bị lừa / gấp thật / chiếm tài khoản / hỏi thông tin), chạy qua proxy local `prototype/server.py`. Key đọc từ `.env` (đã bị `.gitignore`), không nằm trong HTML; log ở [`prototype/ai-call-log.json`](prototype/ai-call-log.json). Nếu không có key hoặc không chạy server, prototype tự dùng nhãn dự phòng và vẫn bấm được toàn bộ luồng.
+
+**Luồng bấm:** bấm “Gọi tư vấn viên” → thẻ chuyển người → tự sang tư vấn viên; bấm “Xác minh” → tự sang chờ duyệt → tự duyệt. Nút “Tua nhanh (demo)” chỉ để tua nhanh khi demo/chụp ảnh; không cần bấm giữa luồng.
+
+**Ảnh 1 — ca bị doạ chuyển tiền (trạng thái đang chuyển người):**
+
+![Ảnh 1 — ca bị doạ chuyển tiền](prototype/01-bi-lua.png)
+
+**Ảnh 2 — ca quầy viện phí (trạng thái chờ tư vấn viên duyệt):**
+
+![Ảnh 2 — ca quầy viện phí](prototype/02-quay-vien-phi.png)
+
+### Chú thích các số trên ảnh
+
+| Số | Thể hiện gì | Nguyên tắc HAX/PAIR | Mức tự chủ |
+|---|---|---|---|
+| **1** | Banner “Trợ lý AI · không tự nhả tiền, không tự mở khoá ví. Quyết định nhả thuộc tư vấn viên.” | **G2** — làm rõ hệ thống làm được gì | Ranh giới chung của mọi tool |
+| **2** | Chip “Mình chưa đủ căn cứ…” / “Mình không đủ căn cứ để tự nhả…” thay cho phần trăm | **G10** — thu hẹp khi nghi ngờ | AI không kết luận khi thiếu căn cứ |
+| **3** | Thẻ “Dựa vào” ba dòng: lời người dùng, trạng thái giao dịch, người nhận | **G11 + PAIR Explainability** | Bằng chứng để người dùng tự kiểm |
+| **4** | Thẻ giao dịch (trạng thái của việc tự làm): “Đang tạm giữ” (ảnh 1) / “Đã xác minh · chờ duyệt” (ảnh 2); ở bước xác minh, nút **Huỷ yêu cầu** nằm ngay dưới thẻ | **G9 + PAIR Feedback & Control** | `giu_giao_dich` = tự làm; `yeu_cau_xac_minh` = tự làm, huỷ 10 giây |
+| **5** | Thẻ “Đang chuyển tư vấn viên · ưu tiên” với tóm tắt và SLA 00:47 (ảnh 1) / “Tư vấn viên đã thấy · 0:38” (ảnh 2) | **PAIR Errors + Graceful Failure** | `chuyen_tu_van_vien` = tự làm; `nha_giao_dich` = cần người duyệt |
+| **6** | Console phía tư vấn viên: giao dịch, lời khách, xác minh, người nhận, nút Giữ / Duyệt nhả | **G2 + G11 + PAIR Explainability** | `nha_giao_dich` = cần người duyệt (người duyệt thấy đủ bằng chứng) |
+| **7** | Dòng `khoa_vi` trong bảng mức: “không có nút · chỉ tổng đài” | **G2** — việc cấm không có nút làm | `khoa_vi` = cấm; `khoa_tam_15p` = tự làm |
+
+### Quyết định về cách hiện độ chắc, bằng chứng và điều khiển mức tự chủ
+
+**Đã chọn.** Hiện độ chắc bằng lời (“mình chưa đủ căn cứ”), không bằng phần trăm; đặt bằng chứng ngay dưới câu nói, không giấu trong modal; giữ nút nhả khỏi màn hình khách; đưa toàn bộ quyết định nhả sang console tư vấn viên; cho phép huỷ hành động tự làm (xác minh trong 10 giây, chuyển người trước khi tư vấn viên nhận).
+
+**Đã nghĩ tới và loại:**
+
+- **Phần trăm độ chắc (“AI chắc 92%”).** Loại vì con số không được hiệu chỉnh, tạo cảm giác chính xác giả, và mời người dùng tranh luận với máy thay vì gọi người. Trong ca bị doạ, một con số cao càng làm người dùng tin kẻ gọi.
+- **Nhãn xanh/đỏ “An toàn / Nguy hiểm”.** Loại vì ám chỉ AI có thể chứng nhận an toàn. Khuôn mặt đúng không chứng minh an toàn; một nhãn xanh sẽ bị kẻ gian lợi dụng.
+- **Nút “Nhả giao dịch” kèm hộp xác nhận.** Loại vì kẻ gian có thể hướng dẫn người dùng bấm xác nhận; hộp thoại không phải là kiểm soát khi người bấm đang bị doạ.
+- **Tự nhả sau khi xác thực khuôn mặt.** Loại vì sự đồng ý có thể bị ép; xác thực sinh trắc không đo được tự do ý chí.
+- **Ẩn console tư vấn viên.** Loại vì người dùng và người chấm không thấy người duyệt đã thấy gì; mất khả năng kiểm chứng và mất niềm tin.
+
+**Vì sao chọn cách này.** Hành động không đảo được (nhả tiền, khoá cả ví) không nằm trên màn hình khách. Người duyệt thấy đúng dữ liệu người dùng thấy, cộng thêm trạng thái xác minh và lịch sử người nhận. Các hành động tự làm đều có đường huỷ, tự mở, hoặc người thật can thiệp. Cách này giữ được cả hai hướng: không nhả nhầm người bị lừa, và không bắt người thật chờ vô ích.
+
+---
 
 ## §6. Tốt là gì
 
