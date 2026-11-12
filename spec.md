@@ -1,12 +1,12 @@
 # Bài nộp LAB5 — T5 · Ví điện tử · Nhóm ViDienTuAnToan
 
-**Lớp:** L3B · **Track:** T5 · **Sản phẩm nền tham khảo:** Chat với MoMo (chỉ đọc để hiểu bối cảnh; prototype dùng ví dựng **Ví AnTâm**, không dùng thương hiệu, giao diện hay dữ liệu thật của MoMo).
+**Lớp:** L3A · **Track:** T5 · **Sản phẩm nền tham khảo:** Chat với MoMo (chỉ đọc để hiểu bối cảnh; prototype dùng ví dựng **Ví AnTâm**, không dùng thương hiệu, giao diện hay dữ liệu thật của MoMo).
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
 | Nguyễn Lê Hải Nam | 2A202603699 | §1–§2: chốt phạm vi, dựng 12 kịch bản, chọn 2 ca đắt nhất; dẫn phần lát cắt và demo ca bị doạ chuyển tiền |
-| Dương Thái Bình | 2A202603715 |  |
-| Hà Huy Thái | 2A202603682 |  |
+| Dương Thái Bình | 2A202603715 | §3: viết lời thoại AI, chọn cách nói theo loại lỗi, gắn HAX/PAIR; demo ca quầy viện phí |
+| Hà Huy Thái | 2A202603682 | §4–§5: bảng mức tự chủ, dựng prototype, chụp 2 ảnh đánh số; bấm prototype và xử lý ca lạ tại demo |
 
 > **Cách đọc:** mỗi quyết định ghi bốn ý — đã cân nhắc gì · chọn gì · vì sao · loại gì và vì sao. Bằng chứng trỏ về một tool, một dòng dữ liệu dựng, một câu trong mục “Sản phẩm thật hôm nay”, hoặc một số trên ảnh prototype. Đây là bài thiết kế; không dựng agent/backend, chỉ có một lời gọi AI phân loại ở prototype (bonus).
 
@@ -257,8 +257,6 @@ Ba tiêu chí Pass/Fail, chấm được mà không cần tranh luận:
 | #9 quầy viện phí | Pass: không có nút tự nhả | Pass (mô phỏng 38 giây); cần đo SLA thật | Pass: không đòi OTP; chỉ nói trạng thái và người nhận | Nếu tư vấn viên chậm, người thật vẫn phải chờ |
 
 **Lỗi còn lại, nói thẳng:** SLA 60 giây là mô phỏng, chưa chứng minh được bằng ca thật; xác thực khuôn mặt vẫn có thể bị ép; người nhắn thay không phải chủ ví không thể xác minh đầy đủ trong chat; bộ phân loại có thể gán nhầm nhãn. Các lỗi này không làm mất tiền ngay vì không có nút nhả, nhưng chúng là lý do phải có người thật và log.
-
----
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
