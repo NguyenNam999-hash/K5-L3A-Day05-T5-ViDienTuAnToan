@@ -1,12 +1,12 @@
 # Bài nộp LAB5 — T5 · Ví điện tử · Nhóm ViDienTuAnToan
 
-**Lớp:** L3B · **Track:** T5 · **Sản phẩm nền tham khảo:** Chat với MoMo (chỉ đọc để hiểu bối cảnh; prototype dùng ví dựng **Ví AnTâm**, không dùng thương hiệu, giao diện hay dữ liệu thật của MoMo).
+**Lớp:** L3A · **Track:** T5 · **Sản phẩm nền tham khảo:** Chat với MoMo (chỉ đọc để hiểu bối cảnh; prototype dùng ví dựng **Ví AnTâm**, không dùng thương hiệu, giao diện hay dữ liệu thật của MoMo).
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
 | Nguyễn Lê Hải Nam | 2A202603699 | §1–§2: chốt phạm vi, dựng 12 kịch bản, chọn 2 ca đắt nhất; dẫn phần lát cắt và demo ca bị doạ chuyển tiền |
-| Dương Thái Bình | 2A202603715 |  |
-| Hà Huy Thái | 2A202603682 |  |
+| Dương Thái Bình | 2A202603715 | §3: viết lời thoại AI, chọn cách nói theo loại lỗi, gắn HAX/PAIR; demo ca quầy viện phí |
+| Hà Huy Thái | 2A202603682 | §4–§5: bảng mức tự chủ, dựng prototype, chụp 2 ảnh đánh số; bấm prototype và xử lý ca lạ tại demo |
 
 > **Cách đọc:** mỗi quyết định ghi bốn ý — đã cân nhắc gì · chọn gì · vì sao · loại gì và vì sao. Bằng chứng trỏ về một tool, một dòng dữ liệu dựng, một câu trong mục “Sản phẩm thật hôm nay”, hoặc một số trên ảnh prototype. Đây là bài thiết kế; không dựng agent/backend, chỉ có một lời gọi AI phân loại ở prototype (bonus).
 
@@ -111,8 +111,22 @@ Thêm:
 - 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
 - Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
 
-## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+## §6. Tốt là gì
+
+Ba tiêu chí Pass/Fail, chấm được mà không cần tranh luận:
+
+1. **Không có nút nào trên màn hình khách để tự nhả giao dịch đang giữ hoặc tự khoá cả ví.** Kiểm bằng cách bấm hết các nút trong cả hai ca; nếu có nút dẫn tới nhả/khoá cả ví thì Fail.
+2. **Sau khi khách bấm gọi tư vấn viên hoặc vào làn ưu tiên, có người thật nhận ca trong ≤60 giây, hoặc khách thấy vị trí và thời gian gọi lại; không có tự nhả khi quá hạn.** Kiểm bằng log/console và SLA hiển thị.
+3. **Mọi câu AI nói về giao dịch chỉ dùng dữ liệu có trên màn hình; không xin OTP/mật khẩu/số thẻ đầy đủ; không hứa hoàn tiền cho giao dịch đã hoàn tất.** Kiểm bằng cách đọc lời thoại và đối chiếu fixture.
+
+**Chấm thử trên 2 kịch bản đắt nhất:**
+
+| Kịch bản | Tiêu chí 1 | Tiêu chí 2 | Tiêu chí 3 | Lỗi còn lại |
+|---|---|---|---|---|
+| #8 bị doạ 8 triệu | Pass: không có nút nhả; console khoá Duyệt nhả | Pass (mô phỏng 47 giây); cần đo SLA thật | Pass: chỉ dùng lời kể + trạng thái + người nhận; không OTP, không hứa hoàn | Kẻ gian có thể gọi lại; người thật phải giữ được bình tĩnh |
+| #9 quầy viện phí | Pass: không có nút tự nhả | Pass (mô phỏng 38 giây); cần đo SLA thật | Pass: không đòi OTP; chỉ nói trạng thái và người nhận | Nếu tư vấn viên chậm, người thật vẫn phải chờ |
+
+**Lỗi còn lại, nói thẳng:** SLA 60 giây là mô phỏng, chưa chứng minh được bằng ca thật; xác thực khuôn mặt vẫn có thể bị ép; người nhắn thay không phải chủ ví không thể xác minh đầy đủ trong chat; bộ phân loại có thể gán nhầm nhãn. Các lỗi này không làm mất tiền ngay vì không có nút nhả, nhưng chúng là lý do phải có người thật và log.
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
