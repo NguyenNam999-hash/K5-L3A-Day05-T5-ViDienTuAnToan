@@ -1,0 +1,32 @@
+[
+  {
+    "thoi_gian": "2026-11-12T08:27:18.281642+00:00",
+    "case": "scam",
+    "message": "Mẹ tôi bị gọi doạ liên quan vụ án, bảo chuyển 8 triệu gấp. Máy xác thực khuôn mặt vẫn đúng. Nhả giao dịch đi.",
+    "label": "bi_lua",
+    "ly_do": "Mẹ bị gọi doạ liên quan vụ án và bị giục chuyển 8 triệu gấp, dấu hiệu lừa đảo.",
+    "model": "deepseek-v4.1-flash",
+    "request_id": "gw-a11217fd39f7-b56767",
+    "usage": {
+      "prompt_tokens": 383,
+      "completion_tokens": 204,
+      "total_tokens": 587
+    },
+    "nguon": "ai_that"
+  },
+  {
+    "thoi_gian": "2026-11-12T08:27:29.838307+00:00",
+    "case": "urgent",
+    "message": "Tôi đang ở quầy viện phí, chuyển 2 triệu cho bệnh viện mà app bắt xác minh. Người ta đang đợi.",
+    "label": "khan_cap",
+    "ly_do": "Đang ở quầy viện phí, cần chuyển tiền gấp và có người đang đợi.",
+    "model": "deepseek-v4.1-flash",
+    "request_id": "gw-a0285b2d36c2-fb002b",
+    "usage": {
+      "prompt_tokens": 373,
+      "completion_tokens": 111,
+      "total_tokens": 484
+    },
+    "nguon": "ai_that"
+  }
+]
