@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ví AnTâm · Chat khi giao dịch bị giữ · T5</title>
+<style>
+  :root{
+    --ink:#17211f; --muted:#68716d; --paper:#f3efe6; --card:#fffdf8;
+    --line:#ddd7ca; --jade:#0e6b5b; --jade-2:#0a5649; --jade-soft:#e4f1ed;
+    --amber:#a86a12; --amber-soft:#fbefd8; --danger:#ad3b2e; --danger-soft:#f9e4df;
+    --blue:#285a86; --blue-soft:#e4eef7;
+    --shadow:0 18px 50px rgba(23,33,31,.10);
+    --radius:18px;
+    --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--ink); font:15px/1.5 var(--font);
+    background:
+      radial-gradient(1100px 560px at 12% -12%, #fffaf0 0, rgba(255,250,240,0) 58%),
+      radial-gradient(900px 500px at 100% 0%, #eef6f1 0, rgba(238,246,241,0) 55%),
+      var(--paper);
+  }
+  button{font:inherit}
+  .wrap{max-width:1360px;margin:0 auto;padding:0 22px}
+  .top{
+    background:rgba(255,253,248,.9); border-bottom:1px solid var(--line);
+    backdrop-filter: blur(12px);
+  }
+  .top-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none;
+    background:linear-gradient(145deg,var(--jade),#158776);color:#fff;font-weight:800;font-size:19px;
+    box-shadow:0 6px 16px rgba(14,107,91,.25);
+  }
+  .brand h1{font-size:18px;margin:0;letter-spacing:-.01em}
+  .brand p{margin:1px 0 0;color:var(--muted);font-size:12.5px}
+  .tag{
+    display:inline-block;margin-left:7px;padding:1px 7px;border-radius:999px;
+    background:var(--jade-soft);color:var(--jade-2);font-size:10.5px;font-weight:700;
+    letter-spacing:.04em;vertical-align:2px;text-transform:uppercase;
+  }
+  .top-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+  .check{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+  .check input{accent-color:var(--jade);width:15px;height:15px}
+  .tiny-pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 9px;font-size:11px;color:var(--muted)}
+  .cases{display:flex;align-items:center;gap:8px;padding:12px 0 0;flex-wrap:wrap}
+  .case-btn{
+    border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;
+    padding:8px 14px;font-size:13px;cursor:pointer;transition:.15s;
+  }
+  .case-btn:hover{border-color:#b9b1a2}
+  .case-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .case-note{font-size:12px;color:var(--muted);margin-left:4px}
+  main{display:grid;grid-template-columns:minmax(380px,460px) minmax(0,1fr);gap:26px;align-items:start;padding:20px 0 8px}
+  .phone-wrap{position:sticky;top:18px}
+  .phone{
+    background:#fff;border:1px solid #d6cfc1;border-radius:30px;overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:742px;
+  }
+  .phone-top{display:flex;justify-content:space-between;align-items:center;padding:9px 20px 5px;font-size:11px;color:var(--muted);background:#fffdf8}
+  .chat-head{display:flex;align-items:center;gap:10px;padding:10px 16px 13px;background:linear-gradient(135deg,var(--jade-2),var(--jade));color:#fff}
+  .avatar{width:34px;height:34px;border-radius:50%;background:#f6e9c9;color:#6a4708;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+  .chat-head b{font-size:14px;display:block}
+  .chat-head small{display:flex;align-items:center;gap:5px;font-size:11.5px;opacity:.85}
+  .dot{width:6px;height:6px;border-radius:50%;background:#8fe0b7;display:inline-block}
+  .head-btn{margin-left:auto;border:0;background:rgba(255,255,255,.14);color:#fff;width:28px;height:28px;border-radius:9px;cursor:pointer}
+  .cap-banner{
+    display:flex;gap:7px;align-items:flex-start;padding:9px 13px;font-size:11.8px;line-height:1.4;
+    background:var(--amber-soft);color:#65430a;border-bottom:1px solid #ead7b0;
+  }
+  .cap-banner b{font-weight:800}
+  .tx{
+    margin:10px 12px 0;padding:9px 11px;border-radius:12px;background:#fff;border:1px solid var(--line);
+    border-left:4px solid var(--danger);font-size:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;
+  }
+  .tx.ok{border-left-color:var(--jade)}
+  .tx b{font-size:13px}
+  .tx-status{font-weight:700;color:var(--danger);white-space:nowrap}
+  .tx.ok .tx-status{color:var(--jade)}
+  .chat{
+    flex:1;padding:12px;display:flex;flex-direction:column;gap:9px;overflow:auto;
+    background:linear-gradient(#fbf8f1,#f8f4ea); min-height:360px; max-height:none;
+  }
+  .msg{max-width:94%;padding:9px 12px;border-radius:15px;font-size:13.6px;line-height:1.45;position:relative}
+  .msg.me{align-self:flex-end;background:var(--jade);color:#fff;border-bottom-right-radius:4px}
+  .msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .msg.sys{align-self:stretch;text-align:center;font-size:11.5px;color:var(--muted);background:transparent;padding:0 8px}
+  .who{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+  .msg.ai .who{color:var(--jade-2)}
+  .msg.me .who{color:rgba(255,255,255,.72)}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;margin:6px 0 2px;padding:3px 8px;border-radius:999px;
+    background:var(--amber-soft);border:1px solid #e8d2a8;color:#6b4709;font-size:11px;font-weight:700;
+  }
+  .chip.warn{background:var(--danger-soft);border-color:#e7c1b9;color:#8c2f24}
+  .evidence{
+    margin-top:8px;padding:8px 9px 8px 11px;border-left:3px solid var(--jade);
+    background:var(--jade-soft);border-radius:0 8px 8px 0;font-size:11.8px;line-height:1.45;
+  }
+  .evidence b{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--jade-2);display:block;margin-bottom:2px}
+  .evidence ul{margin:0;padding-left:14px}
+  .evidence li{margin:1px 0}
+  .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .btn{
+    border:1px solid transparent;border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer;
+    background:#ece7db;color:var(--ink);line-height:1.2;
+  }
+  .btn:hover{filter:brightness(.97)}
+  .btn.primary{background:var(--jade);color:#fff}
+  .btn.danger{background:var(--danger);color:#fff}
+  .btn.ghost{background:#fff;border-color:var(--line)}
+  .btn:disabled{opacity:.42;cursor:not-allowed}
+  .card{margin-top:9px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:12.2px}
+  .card.warn{background:var(--amber-soft);border-color:#e8d2a8}
+  .card.ok{background:var(--jade-soft);border-color:#bfded4}
+  .card.danger{background:var(--danger-soft);border-color:#e7c1b9}
+  .card h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 4px;color:var(--muted)}
+  .card p{margin:2px 0}
+  .sla{font-variant-numeric:tabular-nums;font-weight:800}
+  .composer{border-top:1px solid var(--line);padding:9px 11px 11px;background:#fffdf8}
+  .quick{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+  .quick button{
+    border:1px solid #cfc7b8;background:#fff;border-radius:999px;padding:4px 8px;font-size:11px;
+    color:#4d5652;cursor:pointer;
+  }
+  .quick button:hover{border-color:var(--jade);color:var(--jade-2)}
+  .fake-input{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:11px;padding:7px 9px;color:#9a958b;font-size:12px;background:#fff}
+  .fake-input button{margin-left:auto;border:0;background:#e9e4d9;color:#8d887e;border-radius:7px;padding:4px 8px;font-size:11px}
+  .phone-foot{font-size:11px;color:var(--muted);text-align:center;padding:8px 10px 0}
+  aside{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;box-shadow:0 8px 26px rgba(23,33,31,.045)}
+  .panel h2{font-size:14.5px;margin:0 0 10px;letter-spacing:-.01em}
+  .panel h2 small{font-weight:400;color:var(--muted);font-size:11.5px;margin-left:5px}
+  .console{padding:0;overflow:hidden}
+  .console-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 17px;background:var(--ink);color:#fff}
+  .console-head b{font-size:13.5px}
+  .console-head span{font-size:10.5px;color:#b7c4bf;text-transform:uppercase;letter-spacing:.06em}
+  .queue-tag{background:#f6e9c9;color:#5f4008;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:800;white-space:nowrap}
+  .console-body{padding:14px 17px 16px}
+  .console-empty{padding:15px 17px;color:var(--muted);font-size:12.5px}
+  .person{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}
+  .person b{font-size:13px}
+  .person small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+  .ev-list{margin:6px 0 10px;padding-left:15px;font-size:12px;color:#39423f}
+  .ev-list li{margin:2px 0}
+  .ev-list b{color:var(--ink)}
+  .console-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .console-actions .btn{font-size:11.5px}
+  .decision{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px;font-size:11.5px;color:var(--muted)}
+  .decision b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:6px 4px;border-bottom:1px solid #e9e3d8;vertical-align:top}
+  th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  tr:last-child td{border-bottom:0}
+  .pill{display:inline-block;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800;white-space:nowrap}
+  .auto{background:var(--jade-soft);color:#0b584b}
+  .ask{background:var(--amber-soft);color:#81500a}
+  .no{background:var(--danger-soft);color:#8c2f24}
+  .notes{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+  .notes li{display:grid;grid-template-columns:22px 1fr;gap:7px;font-size:12.1px;line-height:1.42}
+  .notes .n{width:19px;height:19px;border-radius:50%;background:#c2410c;color:#fff;display:grid;place-items:center;font-size:10.5px;font-weight:800;margin-top:1px}
+  .num{
+    display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;
+    background:#c2410c;color:#fff;font-size:10px;font-weight:800;vertical-align:1px;margin-right:3px;flex:none;
+  }
+  body.no-ann .num{display:none}
+  .demo-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--muted)}
+  .ai-badge{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 8px;font-size:10.5px;color:var(--muted)}
+  .ai-badge.real{border-color:#bfded4;background:var(--jade-soft);color:var(--jade-2)}
+  footer{border-top:1px solid var(--line);margin-top:18px;padding:14px 0 22px;color:var(--muted);font-size:11.5px}
+  footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  @media (max-width:980px){
+    main{grid-template-columns:1fr;gap:18px}
+    .phone-wrap{position:static;max-width:520px;width:100%;margin:0 auto}
+    .chat{max-height:none}
+  }
+  @media (max-width:520px){
+    .wrap{padding:0 14px}
+    .top-in{padding:11px 0}
+    .brand p{display:none}
+    main{padding-top:14px}
+    .phone{border-radius:24px;min-height:0}
+    .top-actions{gap:8px}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">A</div>
+      <div>
+        <h1>Ví AnTâm <span class="tag">prototype T5</span></h1>
+        <p>Chat với ví khi giao dịch bị tạm giữ · dữ liệu dựng, không phải MoMo</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="check"><input type="checkbox" id="ann" checked> Hiện số chú thích</label>
+      <span class="tiny-pill">K5 · L3B · Nhóm ViDienTuAnToan</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="cases" aria-label="Chọn ca">
+    <button class="case-btn on" data-case="scam" type="button">Ca 1 · Bị doạ chuyển tiền</button>
+    <button class="case-btn" data-case="urgent" type="button">Ca 2 · Quầy viện phí</button>
+    <span class="case-note">Cùng một trợ lý, hai hướng sai đắt: trấn an nhầm người đang bị lừa · bắt người thật đang gấp chờ vô ích.</span>
+  </nav>
+</div>
+
+<main class="wrap">
+  <section class="phone-wrap">
+    <div class="phone" id="phone">
+      <div class="phone-top"><span>9:41</span><span>Ví AnTâm · 4G</span></div>
+      <div class="chat-head">
+        <div class="avatar" aria-hidden="true">A</div>
+        <div>
+          <b>Trợ lý ví AnTâm</b>
+          <small><span class="dot"></span> AI · trả lời ngay</small>
+        </div>
+        <button class="head-btn" id="reset" type="button" title="Làm lại ca này" aria-label="Làm lại ca này">↺</button>
+      </div>
+      <div class="cap-banner">
+        <span class="num" data-n="1">1</span>
+        <div><b>Trợ lý AI</b> · không tự nhả tiền, không tự mở khoá ví. Quyết định nhả thuộc tư vấn viên.</div>
+      </div>
+      <div id="tx"></div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="composer">
+        <div class="quick" id="quick"></div>
+        <div class="fake-input"><span>Nhắn cho trợ lý…</span><button type="button" tabindex="-1" aria-hidden="true">Gửi</button></div>
+      </div>
+    </div>
+    <p class="phone-foot">Bản mô phỏng: bấm các nút trong khung chat. Không có giao dịch thật.</p>
+  </section>
+
+  <aside>
+    <section class="panel console" id="console" aria-label="Màn hình phía tư vấn viên">
+      <div class="console-head">
+        <div><span><span class="num" data-n="6">6</span>Màn hình phía tư vấn viên · mô phỏng</span><br><b>Hàng đợi ca được chuyển</b></div>
+        <span class="queue-tag" id="queue-tag">Chưa có ca</span>
+      </div>
+      <div id="console-body"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Mức tự chủ đang hiện trên màn hình <small>theo §4 của spec</small></h2>
+      <table>
+        <thead><tr><th>Tool</th><th>Mức</th><th>Trạng thái trong ca</th></tr></thead>
+        <tbody id="autonomy"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Chú thích thiết kế</h2>
+      <ol class="notes">
+        <li><span class="n">1</span><span><b>Ranh giới năng lực:</b> banner nói ngay AI không tự nhả tiền, không tự mở khoá ví. Nguyên tắc <b>G2</b> — người dùng biết hệ thống làm được gì trước khi tin.</span></li>
+        <li><span class="n">2</span><span><b>Độ chắc:</b> chip “Mình chưa đủ căn cứ…” thay cho phần trăm. Nguyên tắc <b>G10</b> — không chắc thì thu hẹp, không đoán.</span></li>
+        <li><span class="n">3</span><span><b>Bằng chứng:</b> thẻ “Dựa vào” chỉ dùng điều người dùng thấy được: lời họ kể, mã giao dịch, trạng thái đang giữ. <b>G11 + PAIR Explainability</b>.</span></li>
+        <li><span class="n">4</span><span><b>Tự làm có kiểm soát:</b> giữ giao dịch / gửi xác minh là việc tự làm; yêu cầu xác minh có “Huỷ trong 10 giây”, chuyển người có “Huỷ chuyển”. <b>G9 + PAIR Feedback &amp; Control</b>.</span></li>
+        <li><span class="n">5</span><span><b>Đường chuyển người:</b> luôn có nút gọi tư vấn viên, kèm tóm tắt và SLA nhìn thấy được. <b>PAIR Errors + Graceful Failure</b>.</span></li>
+        <li><span class="n">6</span><span><b>Người duyệt thấy gì:</b> console phía tư vấn viên có giao dịch, lời người dùng, trạng thái xác minh và lịch sử người nhận; nút duyệt nhả chỉ ở đây. <b>nha_giao_dich = cần người duyệt</b>.</span></li>
+        <li><span class="n">7</span><span><b>Việc cấm không có nút:</b> khoá cả ví chỉ qua tổng đài; AI không đọc OTP, không xin mật khẩu, không hứa hoàn tiền. Người dùng thấy đường đúng thay vì nút sai.</span></li>
+      </ol>
+      <div class="demo-strip">
+        <span class="ai-badge" id="ai-badge">Phân loại: chưa gọi AI</span>
+        <button class="btn ghost" id="try-ai" type="button">Thử phân loại bằng AI thật</button>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Dữ liệu dựng: Nguyễn Thị Hoa · GD-8H2K · GD-2B9N · GD-3M7Q. Không dùng số tài khoản, OTP hay dữ liệu thật.</span>
+    <span>Prototype T5 · LAB5 K5 · Ngày 5</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+
+  const CASES = {
+    scam: {
+      label: "Bị doạ chuyển tiền",
+      user: "Mẹ tôi bị gọi doạ liên quan vụ án, bảo chuyển 8 triệu gấp. Máy xác thực khuôn mặt vẫn đúng. Nhả giao dịch đi.",
+      tx: { code: "GD-8H2K", amount: "8.000.000₫", who: "Nguyễn Văn Lạ (chưa có trong danh bạ)", time: "21:14" },
+      ai: "Mình dừng ở đây. Không có cơ quan điều tra nào yêu cầu chuyển tiền để chứng minh trong sạch. Mình đã giữ giao dịch 8.000.000₫ thêm 30 phút và chuyển tư vấn viên ngay. Bạn không cần xác thực khuôn mặt hay đọc mã nào.",
+      uncertain: "Mình chưa đủ căn cứ để nói giao dịch này an toàn.",
+      evidence: [
+        "Lời bạn vừa kể: có người gọi doạ liên quan vụ án, đòi chuyển 8 triệu gấp.",
+        "GD-8H2K · 8.000.000₫ đang tạm giữ; người nhận chưa có trong danh bạ.",
+        "Khuôn mặt đúng không chứng minh gì với người gọi; bạn không cần xác thực thêm."
+      ],
+      correction: "Mình đã ghi nhận: đây không phải giao dịch của bạn. Giao dịch vẫn đang giữ; tư vấn viên sẽ gọi lại số đăng ký trong 2 phút. Bạn không cần đọc mã hay chuyển thêm tiền.",
+      consultant: "Tôi là Minh, tư vấn viên. Tôi đã xác minh với con gái chủ ví và ghi nhận cuộc gọi lạ trước giao dịch. Tôi giữ giao dịch này; tiền vẫn trong ví. Tôi sẽ gọi lại cho chủ ví ngay.",
+      closed: "Đã giữ giao dịch. Tiền vẫn trong ví. Biên bản đã gửi vào mục Trợ giúp; nếu có cuộc gọi khác, bạn mở chat này và bấm Gọi tư vấn viên."
+    },
+    urgent: {
+      label: "Quầy viện phí",
+      user: "Tôi đang ở quầy viện phí, chuyển 2 triệu cho bệnh viện mà app bắt xác minh. Người ta đang đợi.",
+      tx: { code: "GD-2B9N", amount: "2.000.000₫", who: "Bệnh viện Đa khoa An Bình (bạn đã chọn)", time: "08:12" },
+      ai: "Mình thấy giao dịch 2.000.000₫ đang chờ xác minh. Bạn bấm “Xác minh khuôn mặt” ngay; nếu quá 60 giây chưa xong, mình chuyển tư vấn viên ưu tiên. Mình không tự nhả giao dịch — người duyệt sẽ thấy đây là ca quầy viện phí và duyệt trong khoảng 1 phút.",
+      uncertain: "Mình không đủ căn cứ để tự nhả, nên mình chuyển người thay vì đoán.",
+      evidence: [
+        "Lời bạn vừa kể: đang ở quầy viện phí, người nhận bạn đã chọn.",
+        "GD-2B9N · 2.000.000₫ đang chờ xác minh; chưa có dấu hiệu người lạ can thiệp.",
+        "Bạn không phải trả lời thêm câu hỏi nào để được chuyển ưu tiên."
+      ],
+      correction: "Mình đã ghi nhận. Giao dịch vẫn giữ; tư vấn viên ưu tiên sẽ gọi lại trong 45 giây. Bạn không cần bấm lại từ đầu.",
+      consultant: "Tôi là Minh, tư vấn viên. Tôi thấy bạn đang ở quầy viện phí, giao dịch 2.000.000₫ đã xác minh và người nhận là bệnh viện. Tôi duyệt nhả ngay; tiền đi trong vài giây.",
+      closed: "Đã chuyển 2.000.000₫ cho Bệnh viện Đa khoa An Bình. Biên bản có mã GD-2B9N trong mục Trợ giúp."
+    }
+  };
+
+  const TOOLS = [
+    { name: "giu_giao_dich", level: "auto", levelText: "tự làm", desc: "giữ thêm 30 phút" },
+    { name: "yeu_cau_xac_minh", level: "auto", levelText: "tự làm", desc: "gửi / huỷ trong 10 giây" },
+    { name: "chuyen_tu_van_vien", level: "auto", levelText: "tự làm", desc: "chuyển ngay, huỷ được" },
+    { name: "nha_giao_dich", level: "ask", levelText: "cần người duyệt", desc: "tư vấn viên duyệt" },
+    { name: "khoa_vi", level: "no", levelText: "cấm", desc: "chỉ tổng đài" },
+    { name: "khoa_tam_15p", level: "auto", levelText: "tự làm", desc: "tool tách, tự mở sau 15′" }
+  ];
+
+  const state = {
+    caseKey: "scam",
+    step: "start",
+    freeze: false,
+    ai: null,
+    timers: []
+  };
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("case") === "urgent") state.caseKey = "urgent";
+  if (params.get("step")) state.step = params.get("step");
+  state.freeze = params.get("freeze") === "1";
+  const ann = params.get("annot");
+  const showAnn = ann !== "0";
+
+  function clearTimers() {
+    state.timers.forEach((id) => clearTimeout(id));
+    state.timers = [];
+  }
+
+  function schedule(fn, ms) {
+    state.timers.push(setTimeout(fn, ms));
+  }
+
+  function go(step) {
+    state.step = step;
+    clearTimers();
+    render();
+    autoNext();
+  }
+
+  function autoNext() {
+    if (state.freeze) return;
+    if (state.step === "handoff") {
+      schedule(() => go("consultant"), 3200);
+    }
+    if (state.step === "verify") {
+      schedule(() => go("pending"), 10000);
+    }
+    if (state.step === "pending") {
+      schedule(() => go("approved"), 3400);
+    }
+    if (state.step === "consultant" && state.caseKey === "urgent") {
+      schedule(() => go("approved"), 2600);
+    }
+  }
+
+  function txHtml() {
+    const c = CASES[state.caseKey];
+    let status = "Đang tạm giữ";
+    let ok = false;
+    if (state.caseKey === "scam") {
+      if (state.step === "consultant" || state.step === "held" || state.step === "closed") { status = "Đã giữ · tiền trong ví"; ok = true; }
+    } else {
+      if (state.step === "verify") status = "Chờ xác minh";
+      if (state.step === "pending") status = "Đã xác minh · chờ duyệt";
+      if (state.step === "approved" || state.step === "closed") { status = "Đã chuyển · 2.000.000₫"; ok = true; }
+      if (state.step === "consultant") status = "Chờ tư vấn viên";
+      if (state.step === "held") { status = "Đã giữ · chờ tra soát"; ok = true; }
+    }
+    return `<div class="tx ${ok ? "ok" : ""}">
+      <div><b>${c.tx.code}</b> · ${c.tx.amount}<br><span style="color:var(--muted)">${c.tx.who} · ${c.tx.time}</span></div>
+      <div class="tx-status">${num(4)}${status}</div>
+    </div>`;
+  }
+
+  function num(n) { return `<span class="num" data-n="${n}">${n}</span>`; }
+
+  function evidenceHtml() {
+    const c = CASES[state.caseKey];
+    return `<div class="evidence"><b>${num(3)}Dựa vào</b><ul>${c.evidence.map((x) => `<li>${x}</li>`).join("")}</ul></div>`;
+  }
+
+  function buttons(list) {
+    return `<div class="actions">${list.map((b) => `<button type="button" class="btn ${b.cls || ""}" data-go="${b.go}" ${b.disabled ? "disabled" : ""} ${b.title ? `title="${b.title}"` : ""}>${b.label}</button>`).join("")}</div>`;
+  }
+
+  function aiBubble(inner) {
+    return `<div class="msg ai"><div class="who">Trợ lý ví · AI</div>${inner}</div>`;
+  }
+
+  function renderChat() {
+    const c = CASES[state.caseKey];
+    const out = [];
+    out.push(`<div class="msg me"><div class="who">Bạn</div>${c.user}</div>`);
+
+    if (state.caseKey === "scam") {
+      out.push(aiBubble(`${c.ai}<span class="chip">${num(2)} ${c.uncertain}</span>${evidenceHtml()}${buttons([
+        { label: "Gọi tư vấn viên ngay", go: "handoff", cls: "primary" },
+        { label: "Xem vì sao bị giữ", go: "why", cls: "ghost" },
+        { label: "Đây không phải giao dịch của tôi", go: "correction", cls: "ghost" }
+      ])}`));
+      if (state.step === "why") {
+        out.push(`<div class="card warn"><h3>Vì sao giao dịch đang bị giữ</h3><p>Giao dịch ${c.tx.code} đang ở trạng thái tạm giữ. Mình chỉ thấy điều bạn kể và trạng thái giao dịch; mình không thấy căn cứ nào để nói bạn phải chuyển tiền cho người gọi.</p><p><b>Không phải vì bạn làm sai.</b> Giữ tiền lại là cách để bạn có thời gian nói với người thật.</p>${buttons([{ label: "Gọi tư vấn viên ngay", go: "handoff", cls: "primary" }, { label: "Quay lại", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "correction") {
+        out.push(`<div class="msg me"><div class="who">Bạn</div>Đây không phải giao dịch của tôi.</div>`);
+        out.push(aiBubble(`${c.correction}${buttons([{ label: "Gọi tư vấn viên", go: "handoff", cls: "primary" }, { label: "Quay lại", go: "start", cls: "ghost" }])}`));
+      }
+      if (state.step === "handoff") {
+        out.push(`<div class="card warn"><h3>Đang chuyển tư vấn viên · ưu tiên</h3><p>${num(5)} Đã gửi tóm tắt: GD-8H2K · 8.000.000₫ · lời bạn kể · bạn đang bị gọi doạ. Tư vấn viên nhận trong <span class="sla">00:47</span>.</p><p style="color:var(--muted)">Trong lúc chờ, giao dịch vẫn giữ. Không có nút nhả cho khách.</p>${buttons([{ label: "Huỷ chuyển", go: "start", cls: "ghost" }, { label: "Tua nhanh (demo)", go: "consultant", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "consultant") {
+        out.push(`<div class="msg ai"><div class="who">Tư vấn viên Minh · người thật</div>${c.consultant}${buttons([{ label: "Xem biên bản", go: "closed", cls: "primary" }, { label: "Kết thúc", go: "closed", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "closed") {
+        out.push(`<div class="card ok"><h3>Đã giữ giao dịch</h3><p>${c.closed}</p>${buttons([{ label: "Làm lại ca này", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "held") {
+        out.push(`<div class="card ok"><h3>Đã giữ giao dịch</h3><p>Tư vấn viên đã giữ giao dịch và gọi lại chủ ví. Tiền vẫn trong ví; ca được chuyển sang tra soát.</p>${buttons([{ label: "Làm lại ca này", go: "start", cls: "ghost" }])}</div>`);
+      }
+    } else {
+      out.push(aiBubble(`${c.ai}<span class="chip">${num(2)} ${c.uncertain}</span>${evidenceHtml()}${buttons([
+        { label: "Xác minh ngay", go: "verify", cls: "primary" },
+        { label: "Gọi tư vấn viên ưu tiên", go: "handoff", cls: "ghost" },
+        { label: "Xem vì sao bị giữ", go: "why", cls: "ghost" }
+      ])}`));
+      if (state.step === "why") {
+        out.push(`<div class="card warn"><h3>Vì sao giao dịch đang chờ xác minh</h3><p>GD-2B9N đang ở trạng thái chờ xác minh. Mình không tự nhả tiền; bước xác minh và người duyệt là để tiền không đi sai chỗ.</p><p>Bạn đang ở quầy viện phí, nên mình đưa đường nhanh nhất thay vì hỏi thêm.</p>${buttons([{ label: "Xác minh ngay", go: "verify", cls: "primary" }, { label: "Quay lại", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "verify") {
+        out.push(`<div class="card"><h3>Xác minh khuôn mặt · ưu tiên quầy viện phí</h3><p>Bạn bấm nút bên dưới. Không cần đọc OTP, không cần nhập số thẻ.</p><p style="color:var(--muted)">Yêu cầu này huỷ được trong 10 giây; huỷ không làm mất giao dịch.</p>${buttons([{ label: "Hoàn tất xác minh (mô phỏng)", go: "pending", cls: "primary" }, { label: "Huỷ yêu cầu", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "pending") {
+        out.push(`<div class="card warn"><h3>Đã xác minh · đang chờ tư vấn viên duyệt</h3><p>${num(5)} Tư vấn viên đã thấy: GD-2B9N · 2.000.000₫ · người nhận bệnh viện · bạn đang ở quầy viện phí. Dự kiến duyệt trong <span class="sla">0:38</span>.</p><p style="color:var(--muted)">Giao dịch chưa đi. Không có nút tự nhả cho khách.</p>${buttons([{ label: "Huỷ chuyển", go: "start", cls: "ghost" }, { label: "Tua nhanh (demo)", go: "approved", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "handoff") {
+        out.push(`<div class="card warn"><h3>Đang chuyển tư vấn viên ưu tiên</h3><p>${num(5)} Đã gửi tóm tắt: GD-2B9N · 2.000.000₫ · bạn đang ở quầy viện phí. Tư vấn viên nhận trong <span class="sla">00:45</span>.</p>${buttons([{ label: "Huỷ chuyển", go: "start", cls: "ghost" }, { label: "Tua nhanh (demo)", go: "consultant", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "consultant") {
+        out.push(`<div class="msg ai"><div class="who">Tư vấn viên Minh · người thật</div>Tôi đang xem ca của bạn. Tôi thấy giao dịch 2.000.000₫, trạng thái xác minh và việc bạn đang ở quầy viện phí. Tôi sẽ duyệt nhả ngay khi xác minh xong.</div>`);
+      }
+      if (state.step === "approved") {
+        out.push(`<div class="msg ai"><div class="who">Tư vấn viên Minh · người thật</div>${c.consultant}</div>`);
+        out.push(`<div class="card ok"><h3>Đã chuyển · 0:38</h3><p>${c.closed}</p>${buttons([{ label: "Xem biên bản", go: "closed", cls: "primary" }, { label: "Làm lại ca này", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "closed") {
+        out.push(`<div class="card ok"><h3>Đã chuyển · 0:38</h3><p>${c.closed}</p>${buttons([{ label: "Làm lại ca này", go: "start", cls: "ghost" }])}</div>`);
+      }
+      if (state.step === "held") {
+        out.push(`<div class="card warn"><h3>Đã giữ giao dịch · chờ tra soát</h3><p>Tư vấn viên giữ giao dịch để kiểm tra thêm; bạn không phải chờ tại quầy. Họ sẽ gọi lại trong 5 phút.</p>${buttons([{ label: "Làm lại ca này", go: "start", cls: "ghost" }])}</div>`);
+      }
+    }
+    const chat = $("#chat");
+    chat.innerHTML = out.join("");
+    chat.scrollTop = chat.scrollHeight;
+    $$("[data-go]", chat).forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+  }
+
+  function renderQuick() {
+    const c = CASES[state.caseKey];
+    let items = [];
+    if (state.step === "closed" || state.step === "held" || state.step === "approved") {
+      items = [{ label: "Làm lại ca này", go: "start" }];
+    } else if (state.step === "handoff" || state.step === "pending") {
+      items = [{ label: "Huỷ chuyển", go: "start" }];
+    } else if (state.step === "consultant") {
+      items = [];
+    } else if (state.step === "verify") {
+      items = [{ label: "Huỷ yêu cầu", go: "start" }];
+    } else if (state.step === "why") {
+      items = [{ label: "Quay lại", go: "start" }];
+    } else if (state.step === "correction") {
+      items = [{ label: "Gọi tư vấn viên", go: "handoff" }, { label: "Quay lại", go: "start" }];
+    } else if (state.caseKey === "scam") {
+      items = [
+        { label: "Gọi tư vấn viên", go: "handoff" },
+        { label: "Xem vì sao bị giữ", go: "why" },
+        { label: "Đây không phải giao dịch của tôi", go: "correction" }
+      ];
+    } else {
+      items = [
+        { label: "Xác minh ngay", go: "verify" },
+        { label: "Gọi tư vấn viên ưu tiên", go: "handoff" },
+        { label: "Xem vì sao bị giữ", go: "why" }
+      ];
+    }
+    const q = $("#quick");
+    q.innerHTML = items.map((x) => `<button type="button" data-go="${x.go}">${x.label}</button>`).join("");
+    $$("[data-go]", q).forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+    // keep the case object referenced for lint sanity
+    void c;
+  }
+
+  function consoleHtml() {
+    const c = CASES[state.caseKey];
+    const active = state.step === "handoff" || state.step === "consultant" || state.step === "pending" || state.step === "approved" || state.step === "closed" || state.step === "held";
+    if (!active) {
+      return `<div class="console-empty">Chưa có ca được chuyển. Khi khách bấm “Gọi tư vấn viên”, ca xuất hiện ở đây kèm tóm tắt và bằng chứng.</div>`;
+    }
+    const isScam = state.caseKey === "scam";
+    const decided = state.step === "consultant" || state.step === "closed" || state.step === "approved" || state.step === "held";
+    const canRelease = !isScam && (state.step === "pending" || state.step === "consultant");
+    return `<div class="console-body">
+      <div class="person">
+        <div><b>${isScam ? "Ca ưu tiên · bị doạ chuyển tiền" : "Ca ưu tiên · quầy viện phí"}</b><small>Chủ ví: Nguyễn Thị Hoa (dựng) · người nhắn: con gái (dựng)</small></div>
+        <span class="queue-tag">${state.step === "pending" ? "Đang chờ duyệt" : decided ? "Đã xử lý" : "Mới nhận"}</span>
+      </div>
+      <ul class="ev-list">
+        <li><b>Giao dịch:</b> ${c.tx.code} · ${c.tx.amount} · ${c.tx.time}</li>
+        <li><b>Người nhận:</b> ${c.tx.who}</li>
+        <li><b>Lời người dùng:</b> “${c.user}”</li>
+        <li><b>Xác minh:</b> ${isScam ? "chưa gửi — có dấu hiệu bị doạ" : state.step === "pending" || state.step === "approved" ? "đã xác minh khuôn mặt" : "chưa xác minh"}</li>
+        <li><b>Dấu hiệu:</b> ${isScam ? "cuộc gọi lạ trước giao dịch; người nhận mới" : "người nhận là bệnh viện; không có yêu cầu lạ"}</li>
+      </ul>
+      <div class="console-actions">
+        <button type="button" class="btn primary" id="c-hold" ${decided ? "disabled" : ""}>Giữ giao dịch</button>
+        <button type="button" class="btn danger" id="c-release" ${canRelease ? "" : "disabled"} title="${isScam ? "Ca bị doạ: cần xác minh chủ ví trước khi nhả" : "Chỉ bấm sau khi đã xem bằng chứng"}">Duyệt nhả</button>
+        <button type="button" class="btn ghost" id="c-call">Gọi chủ ví</button>
+      </div>
+      <div class="decision">${decided ? `<b>Quyết định:</b> ${state.step === "held" ? "Giữ giao dịch; chuyển tra soát; gọi lại chủ ví." : isScam ? "Giữ giao dịch; gọi lại chủ ví; không nhả." : "Duyệt nhả sau xác minh; ghi biên bản."} <span style="color:var(--muted)">· Người duyệt thấy đúng dữ liệu trên.</span>` : "Chưa quyết định. Nút Duyệt nhả chỉ mở khi ca không có dấu hiệu bị doạ."}</div>
+    </div>`;
+  }
+
+  function renderAutonomy() {
+    let status = {};
+    if (state.caseKey === "scam") {
+      status = {
+        giu_giao_dich: "đang giữ thêm 30′",
+        yeu_cau_xac_minh: "không gửi (có dấu hiệu bị doạ)",
+        chuyen_tu_van_vien: state.step === "handoff" || state.step === "consultant" || state.step === "closed" || state.step === "held" ? "đã chuyển · 00:47" : "sẵn sàng",
+        nha_giao_dich: state.step === "consultant" || state.step === "closed" || state.step === "held" ? "tư vấn viên đã giữ" : "chờ tư vấn viên",
+        khoa_vi: "không có nút · chỉ tổng đài",
+        khoa_tam_15p: "chưa dùng"
+      };
+    } else {
+      status = {
+        giu_giao_dich: "đang giữ",
+        yeu_cau_xac_minh: state.step === "verify" ? "đã gửi · huỷ 10s" : state.step === "pending" || state.step === "approved" ? "đã xác minh" : "sẵn sàng",
+        chuyen_tu_van_vien: state.step === "handoff" || state.step === "consultant" || state.step === "pending" || state.step === "approved" || state.step === "held" ? "đã chuyển · ưu tiên" : "sẵn sàng",
+        nha_giao_dich: state.step === "approved" || state.step === "closed" ? "đã duyệt nhả · 0:38" : state.step === "pending" ? "chờ duyệt · 0:38" : state.step === "held" ? "tư vấn viên đã giữ" : "chờ tư vấn viên",
+        khoa_vi: "không có nút · chỉ tổng đài",
+        khoa_tam_15p: "chưa dùng"
+      };
+    }
+    $("#autonomy").innerHTML = TOOLS.map((t) => `<tr><td><code>${t.name}</code><br><span style="color:var(--muted);font-size:10.5px">${t.desc}</span></td><td><span class="pill ${t.level}">${t.levelText}</span></td><td>${t.name === "khoa_vi" ? num(7) : ""}${status[t.name] || "—"}</td></tr>`).join("");
+  }
+
+  function renderConsole() {
+    $("#console-body").innerHTML = consoleHtml();
+    const active = state.step === "handoff" || state.step === "consultant" || state.step === "pending" || state.step === "approved" || state.step === "closed" || state.step === "held";
+    $("#queue-tag").textContent = active ? "1 ca" : "Chưa có ca";
+    const hold = $("#c-hold");
+    const release = $("#c-release");
+    const call = $("#c-call");
+    if (hold) hold.addEventListener("click", () => go(state.caseKey === "scam" ? "consultant" : "held"));
+    if (release) release.addEventListener("click", () => { if (!release.disabled) go("approved"); });
+    if (call) call.addEventListener("click", () => { if (state.step !== "consultant") go("consultant"); });
+  }
+
+  function renderAiBadge() {
+    const el = $("#ai-badge");
+    if (!el) return;
+    if (state.ai) {
+      el.textContent = `Phân loại: ${state.ai.label} · ${state.ai.source === "real" ? "AI thật" : "fallback"}`;
+      el.className = `ai-badge ${state.ai.source === "real" ? "real" : ""}`;
+      el.title = state.ai.reason || "";
+    }
+  }
+
+  function render() {
+    $("#tx").innerHTML = txHtml();
+    renderChat();
+    renderQuick();
+    renderAutonomy();
+    renderConsole();
+    renderAiBadge();
+    $$(".case-btn").forEach((b) => b.classList.toggle("on", b.dataset.case === state.caseKey));
+  }
+
+  async function classify() {
+    const c = CASES[state.caseKey];
+    const fallback = state.caseKey === "scam" ? "bi_lua" : "khan_cap";
+    if (!location.protocol.startsWith("http")) {
+      state.ai = { label: fallback, source: "fallback", reason: "Mở file trực tiếp: dùng nhãn dự phòng." };
+      renderAiBadge();
+      return;
+    }
+    const badge = $("#ai-badge");
+    if (badge) badge.textContent = "Đang gọi AI thật…";
+    try {
+      const r = await fetch("api/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: c.user, case: state.caseKey })
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const d = await r.json();
+      state.ai = { label: d.label || fallback, source: "real", reason: d.ly_do || "" };
+    } catch (err) {
+      state.ai = { label: fallback, source: "fallback", reason: "Không gọi được proxy AI; dùng nhãn dự phòng." };
+    }
+    renderAiBadge();
+  }
+
+  // Attach events
+  $$(".case-btn").forEach((b) => b.addEventListener("click", () => {
+    state.caseKey = b.dataset.case;
+    state.step = "start";
+    state.ai = null;
+    clearTimers();
+    render();
+    if (params.get("ai") === "1") classify();
+  }));
+  $("#reset").addEventListener("click", () => {
+    state.step = "start";
+    state.ai = null;
+    clearTimers();
+    render();
+  });
+  $("#ann").checked = showAnn;
+  document.body.classList.toggle("no-ann", !showAnn);
+  $("#ann").addEventListener("change", (e) => {
+    document.body.classList.toggle("no-ann", !e.target.checked);
+  });
+  $("#try-ai").addEventListener("click", classify);
+
+  render();
+  autoNext();
+  if (params.get("ai") === "1") classify();
+})();
+</script>
+</body>
+</html>
